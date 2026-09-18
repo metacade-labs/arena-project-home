@@ -81,12 +81,21 @@ evidenced throughout the repository, and is **not** claimed as a partnership.
 | `ProjectHomeRegistry` | Not deployed. Gated on explicit gas approval. |
 | `OracleGuard` | Not deployed. Gated on explicit gas approval. |
 | Source verification | Not applicable until deployed. Blockscout exposes a contract-verification page for this chain; whether it verifies solc 0.8.28 standard-JSON input could not be confirmed from the build environment and is to be settled at deploy time. |
-| Public frontend URL | Pending. See below. |
+| Public frontend URL | Deployed and rendering, but **not publicly reachable**. See below. |
 
-The frontend builds clean and renders live Robinhood Chain reads locally. The hosted
-deployment is not yet serving, so no public URL is claimed here. A URL will only be
-written into this document once it has been fetched and confirmed to render live chain
-data.
+The frontend is deployed and the build is healthy. Fetched with Vercel authentication,
+it returns HTTP 200 and renders live Robinhood Chain data — chain head read live, the
+NVDA feed reporting `VALID` at its real price, market session `OPEN`, and the
+not-yet-deployed contract rows correctly showing `NOT CONFIGURED`.
+
+It is **not publicly reachable**. The Vercel project has SSO deployment protection
+enabled with `deploymentType: all_except_custom_domains`, so an anonymous request to the
+generated domain is redirected to a Vercel SSO page. A judge opening the link would see
+a login screen, not the page.
+
+No URL is claimed in the Frontend URL field until that is resolved, because a link that
+demands a Vercel login is worse than no link. Resolving it is a project-settings change
+on the hosting account, not a code change; nothing in this repository needs to alter.
 
 ---
 
