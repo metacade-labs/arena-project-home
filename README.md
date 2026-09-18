@@ -1,0 +1,139 @@
+# Arena Project Home
+
+A public reference implementation of an **Arena Project Home**: a project registered
+onchain, and one official Chainlink feed read through a guard that returns an explicit
+validity state rather than a bare price.
+
+Built for Robinhood Chain mainnet (chain ID 4663).
+
+---
+
+## What this is, and what it is not
+
+**It is** two contracts, a test suite, and a read-only public page that reads them live.
+
+**It is not** Metacade Arena. The Arena is not live on Robinhood Chain. Fighters,
+marketplace, wagering, escrow, custody and MCADE conversion are not part of this build
+and no code path here implements any of them.
+
+No partnership with Robinhood, Chainlink, Arbitrum or the Open House programme is
+claimed or implied. These contracts read public feeds.
+
+---
+
+## The problem it addresses
+
+Robinhood's tokenized equity feeds trade 24/5. Per Chainlink, these feeds "do not have
+heartbeats during off-hours", and when the underlying market closes "the feed may hold
+the last published price even though the contract remains callable".
+
+So a naive integration has two failure modes, and they point in opposite directions:
+
+- A plain `latestRoundData()` read treats a two-day-old weekend price as current.
+- A plain maximum-age check reports a perfectly healthy feed as `STALE` every weekend.
+
+`OracleGuard` separates them. A held price during a closed session is `VALID` with a
+`marketClosed` annotation. The same age during an open session is `STALE`. Two tests
+assert exactly that pair, using the same price age and expecting opposite states.
+
+---
+
+## Contracts
+
+| Contract | Purpose |
+|---|---|
+| `ProjectHomeRegistry` | Public record of a project: slug, owner, metadata URI, home chain, treasury reference, active flag. Holds no value. |
+| `OracleGuard` | Returns an explicit `OracleState` for one official Chainlink feed. Holds no value, converts nothing, has no fallback price source. |
+
+Exactly two contracts are deployed. Neither is payable, and tests assert that a value
+transfer to either address fails.
+
+### Oracle states
+
+| State | Meaning |
+|---|---|
+| `UNSUPPORTED` | No official feed configured. Index 0, so an uninitialised read is never `VALID`. |
+| `VALID` | Feed answered, answer positive, within the freshness bound for the current session. |
+| `STALE` | Older than the bound that applies to the current session. |
+| `SEQUENCER_DOWN` | L2 sequencer reported down. |
+| `GRACE_PERIOD` | Sequencer recently recovered; values withheld until the grace period elapses. |
+| `ORACLE_PAUSED` | Corporate-action pause. Advisory only, not enforced onchain. |
+| `INVALID_ANSWER` | Non-positive answer, unset round, future timestamp, or a reverting feed. |
+
+---
+
+## Selected feed
+
+Read from the official Chainlink Data Feeds directory for Robinhood Chain mainnet and
+confirmed by live onchain reads.
+
+| Parameter | Value |
+|---|---|
+| Feed | Robinhood NVDA / USD |
+| Proxy | `0x379EC4f7C378F34a1B47E4F3cbeBCbAC3E8E9F15` |
+| Onchain `description()` | `RHNVDA / USD` |
+| Decimals | 8 |
+| Heartbeat | 86,400s, deviation 0.5% |
+| Market hours | `us_equities_24/5` |
+| Stock Token ERC-20 | `0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC` |
+
+---
+
+## Layout
+
+```
+contracts/src/       ProjectHomeRegistry.sol, OracleGuard.sol
+contracts/test/      unit tests, mocks, and a live fork test
+contracts/script/    Deploy.s.sol
+apps/web/            Next.js App Router frontend, server-side live chain reads
+deployments/         deployed addresses and oracle configuration
+docs/                architecture, limitations, provenance, submission pack
+```
+
+---
+
+## Running it
+
+Requires Foundry and pnpm.
+
+```bash
+forge build
+forge test                 # unit tests, no network needed
+
+# live fork proof against Robinhood Chain mainnet
+ROBINHOOD_RPC_URL=https://rpc.mainnet.chain.robinhood.com forge test --match-contract OracleGuardForkTest -vv
+
+pnpm install
+pnpm dev                   # http://localhost:3000/project/metacade
+```
+
+The frontend works before the contracts are deployed: it reads the official Chainlink
+proxy directly and labels the state source as `DIRECT FEED`. Once
+`NEXT_PUBLIC_ORACLE_GUARD_ADDRESS` and `NEXT_PUBLIC_REGISTRY_ADDRESS` are set it reads
+the deployed contracts instead and labels the source `ORACLEGUARD`.
+
+### Configuration
+
+| Variable | Purpose |
+|---|---|
+| `ROBINHOOD_RPC_URL` | JSON-RPC endpoint. Defaults to the public endpoint, which is rate-limited. |
+| `NEXT_PUBLIC_REGISTRY_ADDRESS` | Deployed `ProjectHomeRegistry`. |
+| `NEXT_PUBLIC_ORACLE_GUARD_ADDRESS` | Deployed `OracleGuard`. |
+| `DEPLOY_ADMIN` | Admin address for the deploy script. |
+| `PROJECT_OWNER` | Project owner recorded in the registry. Defaults to `DEPLOY_ADMIN`. |
+
+No secret belongs in any `NEXT_PUBLIC_` variable. The deployment signer is never read
+by the frontend and never leaves the local environment.
+
+---
+
+## Documentation
+
+- [`docs/architecture.md`](docs/architecture.md) — design, and every decision this build made that the spec left open
+- [`docs/limitations.md`](docs/limitations.md) — where the guarantees stop, including the off-hours case
+- [`docs/buildathon-provenance.md`](docs/buildathon-provenance.md) — what was produced, when, and from which sources
+- [`docs/open-house-submission.md`](docs/open-house-submission.md) — submission field answers
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).

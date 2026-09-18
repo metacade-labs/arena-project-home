@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+
+# next/image ships sharp, and eslint's resolver ships unrs-resolver. Both need their
+# install scripts to run. Nothing else is permitted to execute on install.
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
