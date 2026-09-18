@@ -1,0 +1,14 @@
+{
+  "slug": "metacade",
+  "name": "Metacade",
+  "summary": "Social influence fighting game powered by agents. This Project Home is a public reference implementation on Robinhood Chain; the wider Arena is not live on this chain.",
+  "homeChainId": 4663,
+  "links": {
+    "website": "https://metacade.co",
+    "repository": "https://github.com/metacade-labs/arena-project-home",
+    "x": "https://x.com/Metacade_",
+    "linkedin": "https://www.linkedin.com/company/metacade"
+  },
+  "arenaZone": "City Gates",
+  "nextProgression": "Community Diagnostic"
+}

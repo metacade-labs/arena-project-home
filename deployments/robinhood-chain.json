@@ -1,0 +1,33 @@
+{
+  "network": "Robinhood Chain Mainnet",
+  "chainId": 4663,
+  "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
+  "explorer": "https://robinhoodchain.blockscout.com",
+  "status": "PENDING_DEPLOYMENT",
+  "note": "Deployment is gated on explicit gas approval. Addresses are written here by contracts/script/Deploy.s.sol once that approval is given.",
+  "contracts": {
+    "ProjectHomeRegistry": null,
+    "OracleGuard": null
+  },
+  "oracle": {
+    "asset": "NVDA",
+    "feedName": "Robinhood NVDA / USD",
+    "feedProxy": "0x379EC4f7C378F34a1B47E4F3cbeBCbAC3E8E9F15",
+    "aggregator": "0xC9d16E4f2569b9E3ea0468fD85844953713DC2a2",
+    "stockToken": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+    "decimals": 8,
+    "heartbeatSeconds": 86400,
+    "deviationThresholdPercent": 0.5,
+    "marketHours": "us_equities_24/5",
+    "maxStalenessSeconds": 90000,
+    "maxHeldStalenessSeconds": 432000,
+    "sequencerUptimeFeed": null,
+    "sequencerGracePeriodSeconds": 3600
+  },
+  "project": {
+    "slug": "metacade",
+    "displayName": "Metacade",
+    "homeChainId": 4663,
+    "treasury": null
+  }
+}

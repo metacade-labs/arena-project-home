@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: Contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install contract dependencies
+        run: ./scripts/install-contract-deps.sh
+
+      - name: Build
+        run: forge build --sizes
+
+      - name: Test
+        # The fork test skips itself when ROBINHOOD_RPC_URL is unset, so CI stays
+        # green without depending on a rate-limited public endpoint.
+        run: forge test -vv
+
+      - name: Formatting
+        run: forge fmt --check
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from package.json#packageManager. Specifying it here as well
+      # makes the action fail with "Multiple versions of pnpm specified".
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter web lint
+
+      - name: Build
+        run: pnpm --filter web build
+
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: ${{ github.workspace }}/.gitleaks.toml
+
+      # Version comes from package.json#packageManager. Specifying it here as well
+      # makes the action fail with "Multiple versions of pnpm specified".
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Dependency audit
+        run: pnpm audit --audit-level high
+
+      - name: Assert no private key material is committed
+        run: |
+          set -e
+          if grep -rEn '\b(0x)?[a-fA-F0-9]{64}\b' \
+              --include='*.ts' --include='*.tsx' --include='*.sol' \
+              --include='*.json' --include='*.yml' --include='*.md' \
+              --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=out . ; then
+            echo "A 64-hex string is present. Review it before merging."
+            exit 1
+          fi
+          echo "No 64-hex key material found."
