@@ -1,0 +1,21 @@
+title = "arena-project-home"
+
+[extend]
+useDefault = true
+
+# The generic-api-key rule matches any 40-character hex string, which is exactly the
+# shape of an Ethereum address. The three addresses below are public, official and
+# deliberately published: they are read from the Chainlink Data Feeds directory and
+# Robinhood's official asset registry, and each is confirmed by a live onchain call in
+# contracts/test/OracleGuardFork.t.sol.
+#
+# Allowlisted by exact value, not by rule or by path, so any other 40-hex string still
+# trips the scan.
+[allowlist]
+description = "Official public contract addresses on Robinhood Chain mainnet"
+regexTarget = "match"
+regexes = [
+  '''0x379EC4f7C378F34a1B47E4F3cbeBCbAC3E8E9F15''', # Chainlink Robinhood NVDA / USD proxy
+  '''0xC9d16E4f2569b9E3ea0468fD85844953713DC2a2''', # its underlying aggregator
+  '''0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC''', # NVDA Robinhood Stock Token ERC-20
+]

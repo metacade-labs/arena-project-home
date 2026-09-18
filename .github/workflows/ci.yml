@@ -40,9 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Version comes from package.json#packageManager. Specifying it here as well
+      # makes the action fail with "Multiple versions of pnpm specified".
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
 
       - uses: actions/setup-node@v4
         with:
@@ -70,10 +70,11 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: ${{ github.workspace }}/.gitleaks.toml
 
+      # Version comes from package.json#packageManager. Specifying it here as well
+      # makes the action fail with "Multiple versions of pnpm specified".
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
 
       - uses: actions/setup-node@v4
         with:
