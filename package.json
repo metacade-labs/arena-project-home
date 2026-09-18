@@ -11,5 +11,8 @@
     "test:contracts": "forge test -vv",
     "build:contracts": "forge build"
   },
-  "packageManager": "pnpm@11.2.2"
+  "packageManager": "pnpm@11.2.2",
+  "dependencies": {
+    "next": "16.2.10"
+  }
 }

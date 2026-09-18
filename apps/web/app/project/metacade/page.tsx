@@ -1,4 +1,4 @@
-import {readChainHead, readOracle, readProject, isMarketClosedUtc} from "../../../lib/chain";
+import {readChainHead, readOracle, readProject} from "../../../lib/chain";
 import {
   chainConfig,
   deployedContracts,
@@ -24,8 +24,9 @@ export const revalidate = 0;
 export default async function ProjectHomePage() {
   const [head, oracle, project] = await Promise.all([readChainHead(), readOracle(), readProject()]);
 
-  const now = Math.floor(Date.now() / 1000);
-  const marketClosed = isMarketClosedUtc(now);
+  // The session flag comes from the same read as the price, so the badge and the
+  // state can never disagree. When the guard is deployed this is the guard's own value.
+  const marketClosed = oracle.marketClosed;
   const registryAddress = deployedContracts.projectHomeRegistry;
   const guardAddress = deployedContracts.oracleGuard;
 
@@ -139,7 +140,11 @@ export default async function ProjectHomePage() {
             {formatUtc(oracle.updatedAt)} <span className="dim">({formatAge(oracle.ageSeconds)})</span>
           </Row>
           <Row label="Market session">
-            <Badge tone={marketClosed ? "warn" : "good"}>{marketClosed ? "CLOSED" : "OPEN"}</Badge>{" "}
+            {oracle.error ? (
+              <Badge tone="warn">UNKNOWN</Badge>
+            ) : (
+              <Badge tone={marketClosed ? "warn" : "good"}>{marketClosed ? "CLOSED" : "OPEN"}</Badge>
+            )}{" "}
             <span className="dim">
               tokenized equity, {oracleConfig.marketHours.replace(/_/g, " ")}
             </span>
