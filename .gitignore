@@ -1,0 +1,17 @@
+node_modules/
+.pnpm-store/
+.env
+.env.*
+!.env.example
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+apps/web/.next/
+apps/web/out/
+.vercel/
+.DS_Store
+*.log
+/cache/
+/out/
+/broadcast/
+/lib/
