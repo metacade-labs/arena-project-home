@@ -9,6 +9,7 @@ contract MockAggregator {
     uint256 private _startedAt;
     uint256 private _updatedAt;
     bool public shouldRevert;
+    bool public decimalsShouldRevert;
 
     constructor(uint8 decimals_, int256 answer_, uint256 updatedAt_) {
         _decimals = decimals_;
@@ -38,8 +39,15 @@ contract MockAggregator {
         shouldRevert = v;
     }
 
+    /// @notice Revert only decimals(), leaving latestRoundData() answering normally.
+    /// @dev    Separate from shouldRevert so the "feed answers but will not report its
+    ///         scale" path can be reached at all.
+    function setDecimalsShouldRevert(bool v) external {
+        decimalsShouldRevert = v;
+    }
+
     function decimals() external view returns (uint8) {
-        if (shouldRevert) revert("MockAggregator: down");
+        if (shouldRevert || decimalsShouldRevert) revert("MockAggregator: no decimals");
         return _decimals;
     }
 

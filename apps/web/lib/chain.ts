@@ -29,6 +29,12 @@ export const publicClient = createPublicClient({
 export type OracleReading = {
   /** Where the state came from: the deployed guard, or a direct feed read. */
   source: "oracle-guard" | "direct-feed";
+  /**
+   * True when the chain could not be reached at all. A failed read is not an oracle
+   * state: rendering it as one would tell the reader something about the feed that we
+   * did not actually learn.
+   */
+  readFailed: boolean;
   state: OracleStateName;
   /** Human price string, already scaled by the feed's own decimals. */
   price: string | null;
@@ -88,6 +94,7 @@ export async function readOracle(): Promise<OracleReading> {
 
       return {
         source: "oracle-guard",
+        readFailed: false,
         state: ORACLE_STATES[s.state] ?? "UNSUPPORTED",
         price:
           s.answer > 0n ? formatUnits(s.answer, Number(s.feedDecimals) || oracleConfig.decimals) : null,
@@ -135,6 +142,7 @@ export async function readOracle(): Promise<OracleReading> {
 
     return {
       source: "direct-feed",
+      readFailed: false,
       state: deriveDirectState({answer, updated, age, marketClosed, paused: paused as boolean | null}),
       price: answer > 0n ? formatUnits(answer, feedDecimals) : null,
       rawAnswer: answer,
@@ -170,9 +178,14 @@ function deriveDirectState(input: {
   return "VALID";
 }
 
-export async function readProject(): Promise<ProjectReading | null> {
+export type ProjectResult =
+  | {status: "not-deployed"}
+  | {status: "read-failed"; error: string}
+  | {status: "ok"; project: ProjectReading};
+
+export async function readProject(): Promise<ProjectResult> {
   const registry = deployedContracts.projectHomeRegistry;
-  if (!registry) return null;
+  if (!registry) return {status: "not-deployed"};
 
   try {
     const project = await publicClient.readContract({
@@ -188,12 +201,13 @@ export async function readProject(): Promise<ProjectReading | null> {
     };
 
     return {
-      ...p,
-      createdAt: Number(p.createdAt),
-      updatedAt: Number(p.updatedAt)
+      status: "ok",
+      project: {...p, createdAt: Number(p.createdAt), updatedAt: Number(p.updatedAt)}
     };
-  } catch {
-    return null;
+  } catch (error) {
+    // The registry address is configured, so this is a failed read or an unregistered
+    // slug. Either way it is not evidence that nothing is deployed.
+    return {status: "read-failed", error: messageOf(error)};
   }
 }
 
@@ -212,6 +226,7 @@ export async function readChainHead(): Promise<{blockNumber: bigint; chainId: nu
 
 const emptyReading = (source: OracleReading["source"], error: string): OracleReading => ({
   source,
+  readFailed: true,
   state: "UNSUPPORTED",
   price: null,
   rawAnswer: null,

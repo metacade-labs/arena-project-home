@@ -45,8 +45,10 @@ assert exactly that pair, using the same price age and expecting opposite states
 | `ProjectHomeRegistry` | Public record of a project: slug, owner, metadata URI, home chain, treasury reference, active flag. Holds no value. |
 | `OracleGuard` | Returns an explicit `OracleState` for one official Chainlink feed. Holds no value, converts nothing, has no fallback price source. |
 
-Exactly two contracts are deployed. Neither is payable, and tests assert that a value
-transfer to either address fails.
+Exactly two contracts will be deployed and no more. Neither is payable, and tests assert
+that a value transfer to either address fails. Nothing is deployed yet: deployment is
+gated on explicit gas approval, and `deployments/robinhood-chain.json` records the
+addresses once it is given.
 
 ### Oracle states
 
@@ -98,7 +100,7 @@ Requires Foundry and pnpm.
 
 ```bash
 forge build
-forge test                 # unit tests, no network needed
+forge test                 # 60 unit tests, no network needed; 4 fork tests skip
 
 # live fork proof against Robinhood Chain mainnet
 ROBINHOOD_RPC_URL=https://rpc.mainnet.chain.robinhood.com forge test --match-contract OracleGuardForkTest -vv

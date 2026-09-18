@@ -2,7 +2,8 @@ import type {NextConfig} from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // The page must never serve a cached chain read. Every request reads the chain.
+  // Caching is prevented at the route level by `dynamic = "force-dynamic"`, not here.
+  // These headers are hardening only.
   headers: async () => [
     {
       source: "/:path*",

@@ -40,6 +40,11 @@ contract OracleGuard is AccessControl {
     /// @notice Normalisation target for cross-asset comparison.
     uint8 public constant NORMALIZED_DECIMALS = 18;
 
+    /// @notice Upper bound on a believable feed decimals value.
+    /// @dev    Guards the exponent in _normalize. Chainlink feeds are 8 or 18; anything
+    ///         above this is a malfunctioning or hostile feed, not a scale.
+    uint8 public constant MAX_PLAUSIBLE_DECIMALS = 36;
+
     /// @notice Grace period applied after the sequencer is observed to come back up.
     /// @dev    CHOSEN VALUE, NOT AN OFFICIAL ROBINHOOD CHAIN PARAMETER. It matches the
     ///         value used in Chainlink's own L2 sequencer example. Robinhood Chain
@@ -203,20 +208,32 @@ contract OracleGuard is AccessControl {
             }
         }
 
-        // 2. The feed itself.
+        // 2. The feed itself. Decimals are part of the answer, not a detail: a price
+        //    read against the wrong scale is worse than no price, so a feed that will
+        //    not tell us its decimals is treated as not having answered.
         (bool read, int256 answer, uint256 updatedAt) = _readFeed(cfg.feed);
-        if (!read || answer <= 0 || updatedAt == 0 || updatedAt > block.timestamp) {
+        (bool decimalsRead, uint8 feedDecimals) = _readDecimals(cfg.feed);
+        if (!read || !decimalsRead || answer <= 0 || updatedAt == 0 || updatedAt > block.timestamp) {
             status.state = OracleState.INVALID_ANSWER;
             status.answer = answer;
             status.updatedAt = updatedAt;
             return status;
         }
 
+        (bool scaled, int256 normalized) = _normalize(answer, feedDecimals);
+        if (!scaled) {
+            status.state = OracleState.INVALID_ANSWER;
+            status.answer = answer;
+            status.updatedAt = updatedAt;
+            status.feedDecimals = feedDecimals;
+            return status;
+        }
+
         status.answer = answer;
         status.updatedAt = updatedAt;
         status.age = block.timestamp - updatedAt;
-        status.feedDecimals = _readDecimals(cfg.feed);
-        status.normalizedAnswer = _normalize(answer, status.feedDecimals);
+        status.feedDecimals = feedDecimals;
+        status.normalizedAnswer = normalized;
         status.marketClosed = cfg.isEquity && isMarketClosed();
 
         // 3. Freshness is the primary guard and is evaluated before the advisory
@@ -256,11 +273,11 @@ contract OracleGuard is AccessControl {
         }
     }
 
-    function _readDecimals(address feed) private view returns (uint8) {
+    function _readDecimals(address feed) private view returns (bool ok, uint8 decimals_) {
         try AggregatorV3Interface(feed).decimals() returns (uint8 d) {
-            return d;
+            return (true, d);
         } catch {
-            return 0;
+            return (false, 0);
         }
     }
 
@@ -272,11 +289,24 @@ contract OracleGuard is AccessControl {
         }
     }
 
-    function _normalize(int256 answer, uint8 feedDecimals) private pure returns (int256) {
-        if (feedDecimals == NORMALIZED_DECIMALS) return answer;
+    /// @notice Scale a positive answer to NORMALIZED_DECIMALS.
+    /// @dev    Returns ok = false rather than reverting, so that checkPrice can keep its
+    ///         promise never to revert on a misbehaving feed. Three cases fail:
+    ///         an implausible decimals value, an answer large enough that scaling up
+    ///         would overflow, and an answer small enough that scaling down collapses it
+    ///         to zero. Each is out of band and is reported as INVALID_ANSWER.
+    function _normalize(int256 answer, uint8 feedDecimals) private pure returns (bool ok, int256) {
+        if (feedDecimals > MAX_PLAUSIBLE_DECIMALS) return (false, 0);
+        if (feedDecimals == NORMALIZED_DECIMALS) return (true, answer);
+
         if (feedDecimals < NORMALIZED_DECIMALS) {
-            return answer * int256(10 ** uint256(NORMALIZED_DECIMALS - feedDecimals));
+            int256 factor = int256(10 ** uint256(NORMALIZED_DECIMALS - feedDecimals));
+            if (answer > type(int256).max / factor) return (false, 0);
+            return (true, answer * factor);
         }
-        return answer / int256(10 ** uint256(feedDecimals - NORMALIZED_DECIMALS));
+
+        int256 scaled = answer / int256(10 ** uint256(feedDecimals - NORMALIZED_DECIMALS));
+        if (scaled == 0) return (false, 0);
+        return (true, scaled);
     }
 }

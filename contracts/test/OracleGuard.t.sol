@@ -97,6 +97,42 @@ contract OracleGuardTest is Test {
         assertEq(uint8(_state(SYMBOL)), uint8(OracleGuard.OracleState.INVALID_ANSWER));
     }
 
+    /// A feed that answers but will not report its scale must not be trusted. Reading a
+    /// price against an assumed scale is worse than reporting no price at all.
+    function test_FeedThatWillNotReportDecimalsIsInvalidNotValid() public {
+        feed.setDecimalsShouldRevert(true);
+
+        OracleGuard.PriceStatus memory s = guard.checkPrice(SYMBOL);
+        assertEq(uint8(s.state), uint8(OracleGuard.OracleState.INVALID_ANSWER));
+        assertEq(s.normalizedAnswer, 0, "no normalised price may be published");
+    }
+
+    /// An answer large enough to overflow the scale-up must report a state, not revert.
+    function test_OverflowingAnswerReturnsInvalidAnswerAndDoesNotRevert() public {
+        feed.setDecimals(0);
+        feed.setAnswer(type(int256).max / 2);
+
+        OracleGuard.PriceStatus memory s = guard.checkPrice(SYMBOL);
+        assertEq(uint8(s.state), uint8(OracleGuard.OracleState.INVALID_ANSWER));
+    }
+
+    /// An answer that collapses to zero when scaled down is not a price.
+    function test_AnswerThatScalesDownToZeroIsInvalid() public {
+        feed.setDecimals(30);
+        feed.setAnswer(1);
+
+        OracleGuard.PriceStatus memory s = guard.checkPrice(SYMBOL);
+        assertEq(uint8(s.state), uint8(OracleGuard.OracleState.INVALID_ANSWER));
+    }
+
+    /// An implausible decimals value is a malfunctioning feed, not a scale.
+    function test_ImplausibleDecimalsIsInvalid() public {
+        feed.setDecimals(guard.MAX_PLAUSIBLE_DECIMALS() + 1);
+
+        OracleGuard.PriceStatus memory s = guard.checkPrice(SYMBOL);
+        assertEq(uint8(s.state), uint8(OracleGuard.OracleState.INVALID_ANSWER));
+    }
+
     /// Row 5: stale value returns STALE.
     function test_StalePriceInOpenSessionReturnsStale() public {
         vm.warp(block.timestamp + MAX_STALENESS + 1);

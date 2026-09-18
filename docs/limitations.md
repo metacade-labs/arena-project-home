@@ -112,6 +112,18 @@ holds `DEFAULT_ADMIN_ROLE` can reconfigure assets and set the treasury reference
 reference implementation that holds no value this is proportionate; anything holding
 value would need more.
 
+## A project owner key cannot be replaced
+
+`ProjectHomeRegistry` has no owner-transfer function and no admin recovery path. The
+project owner set at registration is the only address that can ever update that
+project's display name and metadata URI. If that key is lost the record's presentation
+fields are frozen permanently; the admin can still deactivate the project and set the
+treasury reference, but cannot reassign ownership.
+
+This is deliberate for a reference implementation — an admin able to reassign ownership
+is an admin able to take over any record — but it is a real operational constraint and
+is stated here rather than discovered later.
+
 ## What the contracts cannot do
 
 Neither contract is payable. Neither holds, transfers, swaps, escrows or converts any

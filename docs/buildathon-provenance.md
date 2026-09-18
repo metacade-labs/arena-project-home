@@ -24,7 +24,7 @@ history was copied from any other repository.
 
 - `contracts/src/ProjectHomeRegistry.sol` — written for this entry.
 - `contracts/src/OracleGuard.sol` — written for this entry.
-- `contracts/test/` — 56 unit tests plus 4 live fork tests, written for this entry.
+- `contracts/test/` — 60 unit tests plus 4 live fork tests, written for this entry.
 - `apps/web/` — Next.js frontend, written for this entry.
 - `docs/` — written for this entry.
 
@@ -37,8 +37,8 @@ Third-party libraries, used unmodified and under their own licences:
 | OpenZeppelin Contracts | v5.1.0 | `AccessControl`. Audited role-based access is not something to hand-roll. |
 | Chainlink contracts | 1.3.0 | `AggregatorV3Interface`, taken from the official package rather than retyped. |
 | forge-std | latest | Test harness only. Not deployed. |
-| Next.js, React | 15.5.4 / 19.1.1 | Frontend framework. |
-| viem | 2.37.6 | Typed Ethereum RPC client for server-side reads. |
+| Next.js, React | 16.3.5 / 19.1.1 | Frontend framework. |
+| viem | 2.56.5 | Typed Ethereum RPC client for server-side reads. |
 
 No code was taken from Metacade's private repositories. No private environment
 variable, private Supabase schema, private product research, unreleased asset or
@@ -77,7 +77,9 @@ tested against mocks, and the conflict is recorded in `docs/architecture.md` and
 
 ## Evidence
 
-- Unit tests: `forge test` — 56 passing, no network required.
+- Unit tests: `forge test` — 60 passing and 4 skipped, no network required. The four
+  skipped are the live fork tests; they skip visibly rather than passing vacuously when
+  `ROBINHOOD_RPC_URL` is unset.
 - Mutation check: three deliberate mutations of the market-session and freshness logic
   were each caught by the suite before the tests were accepted as proof.
 - Live fork test: `ROBINHOOD_RPC_URL=... forge test --match-contract OracleGuardForkTest`

@@ -30,7 +30,8 @@ adequate for reads at this scale and is what the fork test and frontend use by d
 
 ## Contracts
 
-Exactly two contracts are deployed. Nothing else takes an address.
+Exactly two contracts will be deployed. Nothing else takes an address. Nothing is
+deployed yet; the gate is explicit gas approval.
 
 ### ProjectHomeRegistry
 
@@ -79,11 +80,21 @@ Checks run in this order:
 5. **Freshness**, gated on market session for tokenized equities.
 6. **Corporate-action pause**, advisory, checked last.
 
-`decimals()` is read from the feed on every call and never assumed. Values are
-normalised to 18 decimals for comparison; the raw answer is also returned.
+`decimals()` is read from the feed on every call and never assumed. A feed that answers
+with a price but will not report its scale is treated as not having answered at all and
+reports `INVALID_ANSWER`: a price read against a guessed scale is worse than no price,
+and the natural fallback of zero is the single worst guess available, inflating every
+value by 10^18. Values are normalised to 18 decimals for comparison; the raw answer is
+also returned.
 
-`checkPrice` never reverts. A feed that reverts is caught and reported as
-`INVALID_ANSWER`, because a status function that reverts gives the caller nothing to render.
+Normalisation cannot revert. Three cases are out of band and report `INVALID_ANSWER`
+rather than bubbling an arithmetic error out of a status function: a decimals value
+above `MAX_PLAUSIBLE_DECIMALS` (36), an answer large enough that scaling up would
+overflow `int256`, and an answer small enough that scaling down collapses it to zero.
+
+`checkPrice` never reverts. A feed that reverts, or that returns a value the guard
+cannot scale, is caught and reported as `INVALID_ANSWER`, because a status function that
+reverts gives the caller nothing to render.
 
 ---
 

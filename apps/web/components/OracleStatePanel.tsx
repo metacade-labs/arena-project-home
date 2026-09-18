@@ -23,24 +23,36 @@ const EXPLANATIONS: Record<OracleStateName, string> = {
 };
 
 export function OracleStatePanel({reading}: {reading: OracleReading}) {
-  const {state, marketClosed} = reading;
-  const heldPrice = state === "VALID" && marketClosed;
+  const {state, marketClosed, readFailed} = reading;
+  const heldPrice = !readFailed && state === "VALID" && marketClosed;
 
   return (
     <>
       <div className="row">
         <dt>Oracle state</dt>
         <dd>
-          <Badge tone={TONES[state]}>{state}</Badge>
-          {heldPrice ? (
+          {readFailed ? (
             <>
-              {" "}
-              <Badge tone="warn">MARKET CLOSED</Badge>
+              <Badge tone="bad">READ FAILED</Badge>
+              <p className="dim" style={{margin: "0.4rem 0 0", fontSize: "0.87rem"}}>
+                The chain could not be reached, so no oracle state was obtained. This is a
+                statement about this page, not about the feed.
+              </p>
             </>
-          ) : null}
-          <p className="dim" style={{margin: "0.4rem 0 0", fontSize: "0.87rem"}}>
-            {EXPLANATIONS[state]}
-          </p>
+          ) : (
+            <>
+              <Badge tone={TONES[state]}>{state}</Badge>
+              {heldPrice ? (
+                <>
+                  {" "}
+                  <Badge tone="warn">MARKET CLOSED</Badge>
+                </>
+              ) : null}
+              <p className="dim" style={{margin: "0.4rem 0 0", fontSize: "0.87rem"}}>
+                {EXPLANATIONS[state]}
+              </p>
+            </>
+          )}
         </dd>
       </div>
 

@@ -22,7 +22,20 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function ProjectHomePage() {
-  const [head, oracle, project] = await Promise.all([readChainHead(), readOracle(), readProject()]);
+  const [head, oracle, projectResult] = await Promise.all([
+    readChainHead(),
+    readOracle(),
+    readProject()
+  ]);
+  const project = projectResult.status === "ok" ? projectResult.project : null;
+
+  // Absence and failure are different answers. Saying "not deployed" because a read
+  // failed would be a confident wrong answer, which is the one thing this page must
+  // not produce.
+  const registryAbsenceReason =
+    projectResult.status === "not-deployed"
+      ? "deployment gated on gas approval"
+      : "registry read failed; deployment state unknown";
 
   // The session flag comes from the same read as the price, so the badge and the
   // state can never disagree. When the guard is deployed this is the guard's own value.
@@ -91,7 +104,7 @@ export default async function ProjectHomePage() {
             {project ? (
               <AddressLink address={project.owner} />
             ) : (
-              <NotConfigured reason="read once the registry is deployed" />
+              <NotConfigured reason={registryAbsenceReason} />
             )}
           </Row>
           <Row label="Treasury">
@@ -110,7 +123,7 @@ export default async function ProjectHomePage() {
                 </Badge>
               </>
             ) : (
-              <NotConfigured reason="registry not yet deployed" />
+              <NotConfigured reason={registryAbsenceReason} />
             )}
           </Row>
         </dl>
@@ -281,7 +294,10 @@ export default async function ProjectHomePage() {
         </ul>
         <p>
           Read-only reference implementation. No wallet connection, no authentication, no private
-          API. Every value above is a live read of Robinhood Chain mainnet.
+          API. The price, its timestamp, the oracle state and the chain head are live reads of
+          Robinhood Chain mainnet. The heartbeat, deviation threshold, freshness policy, market
+          hours and progression rows are configuration, shown so the live values can be judged
+          against them.
         </p>
       </footer>
     </main>
