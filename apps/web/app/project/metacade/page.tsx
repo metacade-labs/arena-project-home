@@ -108,10 +108,16 @@ export default async function ProjectHomePage() {
             )}
           </Row>
           <Row label="Treasury">
-            {project && project.treasury !== "0x0000000000000000000000000000000000000000" ? (
-              <AddressLink address={project.treasury} />
+            {project ? (
+              project.treasury !== "0x0000000000000000000000000000000000000000" ? (
+                <AddressLink address={project.treasury} />
+              ) : (
+                <NotConfigured reason="this build takes no custody" />
+              )
             ) : (
-              <NotConfigured reason="this build takes no custody" />
+              // Without a registry read we have not learned the treasury is unset,
+              // only that we could not look.
+              <NotConfigured reason={registryAbsenceReason} />
             )}
           </Row>
           <Row label="Registry record">
