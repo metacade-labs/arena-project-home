@@ -85,7 +85,17 @@ tested against mocks, and the conflict is recorded in `docs/architecture.md` and
 - Live fork test: `ROBINHOOD_RPC_URL=... forge test --match-contract OracleGuardForkTest`
   — 4 passing against Robinhood Chain mainnet, reading the real feed.
 - CI: contract build, test and format; frontend lint and build; secret scan and
-  dependency audit.
+  dependency audit. All three jobs green on the pull request.
+- Deployment simulation: the deploy script was run end to end against a local fork of
+  Robinhood Chain mainnet state, which spends no mainnet gas. Both contracts deployed,
+  `OracleGuard.checkPrice("NVDA")` returned state `VALID` with answer `22244729849` at
+  8 decimals and normalised `222447298490000000000`, confirming the 10^10 scale-up
+  exactly, and `getProjectBySlug("metacade")` returned the record with `treasury`
+  `address(0)`. The frontend was then pointed at those two addresses and rendered its
+  state source as `ORACLEGUARD` rather than `DIRECT FEED`, which is the only way to
+  exercise the deployed-contract read path before the gas gate opens.
+- Gas estimated from the exact compiled transactions that would broadcast, not from
+  historical figures: 4 transactions, 4,566,227 gas total.
 
 ## Claims deliberately not made
 
