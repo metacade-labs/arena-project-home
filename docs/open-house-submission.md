@@ -93,11 +93,20 @@ evidenced throughout the repository, and is **not** claimed as a partnership.
 | Source verification | PENDING. Submitted through the Blockscout web form with Solidity standard JSON input, compiler v0.8.28+commit.7893614a; not yet confirmed. The explorer API refuses datacentre traffic, so the forge route could not be used. |
 | Public frontend URL | Live and publicly reachable — https://arena-project-home.vercel.app/project/metacade |
 
-The frontend is reachable anonymously. Fetched on 2026-09-21 at 10:03:41 UTC with no
-Vercel session, no cookie and no bypass token, it returned HTTP 200 with no redirect and
-no `Set-Cookie`, and rendered live Robinhood Chain data: chain head block 68,710,564, the
-NVDA feed reporting `VALID` at its real price, market session `OPEN`, and the
-not-yet-deployed contract rows correctly showing `NOT CONFIGURED`.
+The frontend is reachable anonymously and reads the deployed contracts. After the
+contracts were deployed and the production build repointed at them, it was fetched on
+2026-09-21 at 11:53:14 UTC with no Vercel session, no cookie and no bypass token. It
+returned HTTP 200 with no redirect and no `Set-Cookie`, and rendered: state source
+`ORACLEGUARD`, oracle state `VALID` at the feed's real price, market session `OPEN`,
+chain head block 68,775,857, both contract addresses, registry record id 1 `ACTIVE`, and
+project owner `0x70C851895247e7ACa99733EA3aaC1FFb247c1423`. The only rows still reading
+`NOT CONFIGURED` are the treasury, which this build deliberately leaves unset, and the
+sequencer uptime feed, which Robinhood Chain does not publish.
+
+The closed-session rendering (price shown, session `CLOSED`, state `VALID` with the
+`marketClosed` annotation, not `STALE`) is asserted by tests but has not yet been
+observed live: the market was open at every check made so far. It can first be checked
+live from Saturday 2026-09-26 00:00 UTC.
 
 No project setting was changed to achieve this. The project keeps SSO deployment
 protection at `all_except_custom_domains`, and `arena-project-home.vercel.app` is a
