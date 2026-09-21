@@ -31,8 +31,13 @@ same change.
 
 ## Frontend URL
 
-See **Deployment status** below. Until that section carries a URL, this field has no
-answer and must not be filled in with a guess.
+> https://arena-project-home.vercel.app/project/metacade
+
+*(54 characters)*
+
+Use this URL and no other. The team-suffixed alias
+`arena-project-home-bloated-toad.vercel.app` stays behind Vercel SSO and shows a login
+page to a judge.
 
 ## Core contracts
 
@@ -81,21 +86,19 @@ evidenced throughout the repository, and is **not** claimed as a partnership.
 | `ProjectHomeRegistry` | Not deployed. Gated on explicit gas approval. |
 | `OracleGuard` | Not deployed. Gated on explicit gas approval. |
 | Source verification | Not applicable until deployed. Blockscout exposes a contract-verification page for this chain; whether it verifies solc 0.8.28 standard-JSON input could not be confirmed from the build environment and is to be settled at deploy time. |
-| Public frontend URL | Deployed and rendering, but **not publicly reachable**. See below. |
+| Public frontend URL | Live and publicly reachable — https://arena-project-home.vercel.app/project/metacade |
 
-The frontend is deployed and the build is healthy. Fetched with Vercel authentication,
-it returns HTTP 200 and renders live Robinhood Chain data — chain head read live, the
+The frontend is reachable anonymously. Fetched on 2026-09-21 at 10:03:41 UTC with no
+Vercel session, no cookie and no bypass token, it returned HTTP 200 with no redirect and
+no `Set-Cookie`, and rendered live Robinhood Chain data: chain head block 68,710,564, the
 NVDA feed reporting `VALID` at its real price, market session `OPEN`, and the
 not-yet-deployed contract rows correctly showing `NOT CONFIGURED`.
 
-It is **not publicly reachable**. The Vercel project has SSO deployment protection
-enabled with `deploymentType: all_except_custom_domains`, so an anonymous request to the
-generated domain is redirected to a Vercel SSO page. A judge opening the link would see
-a login screen, not the page.
-
-No URL is claimed in the Frontend URL field until that is resolved, because a link that
-demands a Vercel login is worse than no link. Resolving it is a project-settings change
-on the hosting account, not a code change; nothing in this repository needs to alter.
+No project setting was changed to achieve this. The project keeps SSO deployment
+protection at `all_except_custom_domains`, and `arena-project-home.vercel.app` is a
+domain assigned to the project, which that mode exempts. Every other URL for the project,
+including the team-suffixed alias and per-deployment URLs, still redirects to a Vercel
+login, which is why the Frontend URL field names this one URL only.
 
 ---
 
