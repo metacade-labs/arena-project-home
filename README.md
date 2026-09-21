@@ -176,7 +176,10 @@ behind Cloudflare and has refused datacentre traffic, so the second route is the
 Blockscout web form: generate the input with
 `forge verify-contract <address> <path>:<name> --show-standard-json-input > <name>.json`
 and upload it under "Verify & Publish" as Solidity standard JSON input, compiler
-v0.8.28+commit.7893614a.
+v0.8.28+commit.7893614a. The standard JSON input does not carry constructor arguments.
+If the form asks for them, supply the ABI-encoded admin from
+`cast abi-encode "constructor(address)" <admin>`, which is also recorded in the
+creation transaction's input after the bytecode.
 
 ---
 
