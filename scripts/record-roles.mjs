@@ -8,9 +8,13 @@
 // "roleHandoff" in the same file. Exits non-zero, writing nothing, unless every read
 // shows the deployer without the role and the new admin with it.
 //
+// If forge's broadcast of HandoffRoles.s.sol for this chain exists, its ten transaction
+// hashes are recorded too, each re-fetched from the network first so that a local fork
+// run can never be recorded.
+//
 // Uses the local `cast` binary for the reads; no new dependency.
 import {execFileSync} from "node:child_process";
-import {readFileSync, writeFileSync} from "node:fs";
+import {existsSync, readFileSync, writeFileSync} from "node:fs";
 
 const FILES = {
   46630: {file: "deployments/robinhood-chain-testnet.json", rpc: "https://rpc.testnet.chain.robinhood.com"},
@@ -88,13 +92,40 @@ if (!complete) {
   process.exit(1);
 }
 
+let transactions = null;
+const runPath = `broadcast/HandoffRoles.s.sol/${chainId}/run-latest.json`;
+if (existsSync(runPath)) {
+  const run = JSON.parse(readFileSync(runPath, "utf8"));
+  transactions = run.transactions.map((tx) => {
+    let live;
+    try {
+      live = JSON.parse(cast("receipt", tx.hash, "--async", "--json"));
+    } catch {
+      console.error(`${tx.hash} is not on chain ${chainId}. Refusing to record a local or fork run.`);
+      process.exit(1);
+    }
+    if (live.status !== "0x1") {
+      console.error(`${tx.hash} did not succeed.`);
+      process.exit(1);
+    }
+    return {
+      function: tx.function,
+      to: tx.transaction.to,
+      txHash: tx.hash,
+      blockNumber: Number(BigInt(live.blockNumber)),
+      gasUsed: Number(BigInt(live.gasUsed))
+    };
+  });
+}
+
 record.roleHandoff = {
   newAdmin,
   deployer: record.deployer,
   projectOwner: owner,
   readAtBlock: Number(block),
   readAtUtc: new Date(timestamp * 1000).toISOString(),
-  reads
+  reads,
+  transactions
 };
 writeFileSync(target.file, JSON.stringify(record, null, 2) + "\n");
 console.log(`Recorded role handoff at block ${block} to ${target.file}`);

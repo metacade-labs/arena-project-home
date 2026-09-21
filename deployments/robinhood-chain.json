@@ -3,11 +3,10 @@
   "chainId": 4663,
   "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
   "explorer": "https://robinhoodchain.blockscout.com",
-  "status": "PENDING_DEPLOYMENT",
-  "note": "Deployment is gated on explicit gas approval. Addresses and transaction hashes are written here by scripts/record-deployment.mjs from the broadcast receipts once that approval is given.",
+  "status": "DEPLOYED",
   "contracts": {
-    "ProjectHomeRegistry": null,
-    "OracleGuard": null
+    "ProjectHomeRegistry": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+    "OracleGuard": "0x5014befb2ee7aa9e29163a75e7989983df8d2048"
   },
   "oracle": {
     "asset": "NVDA",
@@ -29,5 +28,160 @@
     "displayName": "Metacade",
     "homeChainId": 4663,
     "treasury": null
+  },
+  "deployer": "0x451b561485069d5983118ad2ba3d80b88b0a5100",
+  "deploymentTxHashes": {
+    "ProjectHomeRegistry": "0xb30141eb3f323d4fbbf383815edbe8d9072f63fc32bb423c5c4377a513082a21",
+    "OracleGuard": "0x8f0e526324182b487b8fedca22c9d2af2560eb7ce66fe6b819f3c19602f95f71"
+  },
+  "transactions": [
+    {
+      "type": "CREATE",
+      "contract": "ProjectHomeRegistry",
+      "function": null,
+      "contractAddress": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+      "txHash": "0xb30141eb3f323d4fbbf383815edbe8d9072f63fc32bb423c5c4377a513082a21",
+      "blockNumber": 68765050,
+      "gasUsed": 1431986
+    },
+    {
+      "type": "CREATE",
+      "contract": "OracleGuard",
+      "function": null,
+      "contractAddress": "0x5014befb2ee7aa9e29163a75e7989983df8d2048",
+      "txHash": "0x8f0e526324182b487b8fedca22c9d2af2560eb7ce66fe6b819f3c19602f95f71",
+      "blockNumber": 68765078,
+      "gasUsed": 1601997
+    },
+    {
+      "type": "CALL",
+      "contract": "OracleGuard",
+      "function": "configureAsset(string,address,address,uint32,uint32,bool)",
+      "contractAddress": null,
+      "txHash": "0x2a31998f343db86101ca7af6ea6a1a3b0c5f703ed463d91bb18b1a9f5102caa1",
+      "blockNumber": 68765114,
+      "gasUsed": 141449
+    },
+    {
+      "type": "CALL",
+      "contract": "ProjectHomeRegistry",
+      "function": "registerProject(string,string,address,string,uint256)",
+      "contractAddress": null,
+      "txHash": "0x53a26220ebfd3d1bb0a6b9b2ffaba53fb4c36a6e182ff1c62608b01b66d083eb",
+      "blockNumber": 68765156,
+      "gasUsed": 327749
+    }
+  ],
+  "recordedFrom": "broadcast/Deploy.s.sol/4663/run-latest.json",
+  "roleHandoff": {
+    "newAdmin": "0x70C851895247e7ACa99733EA3aaC1FFb247c1423",
+    "deployer": "0x451b561485069d5983118ad2ba3d80b88b0a5100",
+    "projectOwner": "0x70C851895247e7ACa99733EA3aaC1FFb247c1423",
+    "readAtBlock": 68769110,
+    "readAtUtc": "2026-09-21T11:41:54.000Z",
+    "reads": [
+      {
+        "contract": "ProjectHomeRegistry",
+        "role": "DEFAULT_ADMIN_ROLE",
+        "deployer": false,
+        "newAdmin": true
+      },
+      {
+        "contract": "ProjectHomeRegistry",
+        "role": "REGISTRAR_ROLE",
+        "deployer": false,
+        "newAdmin": true
+      },
+      {
+        "contract": "ProjectHomeRegistry",
+        "role": "CURATOR_ROLE",
+        "deployer": false,
+        "newAdmin": true
+      },
+      {
+        "contract": "OracleGuard",
+        "role": "DEFAULT_ADMIN_ROLE",
+        "deployer": false,
+        "newAdmin": true
+      },
+      {
+        "contract": "OracleGuard",
+        "role": "ASSET_MANAGER_ROLE",
+        "deployer": false,
+        "newAdmin": true
+      }
+    ],
+    "transactions": [
+      {
+        "function": "grantRole(bytes32,address)",
+        "to": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+        "txHash": "0x15d627ccee03f1a391cfff880ea594bb5df1801ef4c23b7e927576ab40d462c0",
+        "blockNumber": 68768708,
+        "gasUsed": 51560
+      },
+      {
+        "function": "grantRole(bytes32,address)",
+        "to": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+        "txHash": "0x88c8a51393a3f07c8c2632a8c5d2e5a2ee86d45512fdcf45a0108eedb2b869c7",
+        "blockNumber": 68768732,
+        "gasUsed": 51561
+      },
+      {
+        "function": "grantRole(bytes32,address)",
+        "to": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+        "txHash": "0x200872d721026ddd5ad206c0f85cac47ead5fa3bebe67d21909ef21fd313973c",
+        "blockNumber": 68768756,
+        "gasUsed": 51176
+      },
+      {
+        "function": "grantRole(bytes32,address)",
+        "to": "0x5014befb2ee7aa9e29163a75e7989983df8d2048",
+        "txHash": "0xb80cb5a302b36d09dfe8a7edecae594e5eac617c02c83351e04f0d12296a2269",
+        "blockNumber": 68768780,
+        "gasUsed": 51582
+      },
+      {
+        "function": "grantRole(bytes32,address)",
+        "to": "0x5014befb2ee7aa9e29163a75e7989983df8d2048",
+        "txHash": "0xcb36520101611ec3ef2ae8d165898764735607525322edf98c269202d4f48085",
+        "blockNumber": 68768804,
+        "gasUsed": 51198
+      },
+      {
+        "function": "renounceRole(bytes32,address)",
+        "to": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+        "txHash": "0xf1c89bfaac45ed8095cf323493276f5ac39141e3528b77a786ab61b7ca5207af",
+        "blockNumber": 68768841,
+        "gasUsed": 26060
+      },
+      {
+        "function": "renounceRole(bytes32,address)",
+        "to": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+        "txHash": "0xd04c9e8e506ce5278e097c0512149c3c92b4a4b2ce34e58522f673b0e5807c29",
+        "blockNumber": 68768865,
+        "gasUsed": 26068
+      },
+      {
+        "function": "renounceRole(bytes32,address)",
+        "to": "0x7a194166bd8abb6aa3bd924532b8c7ca59a05d15",
+        "txHash": "0x69ab9237fdcf29192b3bb7880d8f79b2de8f81b19d5def4b6fbe94f835bf89ec",
+        "blockNumber": 68768889,
+        "gasUsed": 25655
+      },
+      {
+        "function": "renounceRole(bytes32,address)",
+        "to": "0x5014befb2ee7aa9e29163a75e7989983df8d2048",
+        "txHash": "0xa70f9049fbd8a3586f10681ec4d9fcdd87e43309597dadc0537c5724393fa5c6",
+        "blockNumber": 68768913,
+        "gasUsed": 26160
+      },
+      {
+        "function": "renounceRole(bytes32,address)",
+        "to": "0x5014befb2ee7aa9e29163a75e7989983df8d2048",
+        "txHash": "0x82d49a677d265b2917b4fa3e8ad32ef95527c7ff13a75c84c490966442d660a6",
+        "blockNumber": 68768937,
+        "gasUsed": 25772
+      }
+    ]
   }
 }
