@@ -89,13 +89,13 @@ evidenced throughout the repository, and is **not** claimed as a partnership.
 | Source verification | PENDING. Submitted through the Blockscout web form with Solidity standard JSON input, compiler v0.8.28+commit.7893614a; not yet confirmed. The explorer API refuses datacentre traffic, so the forge route could not be used. |
 | Public frontend URL | Live and publicly reachable — https://arena-project-home.vercel.app/project/metacade |
 
-The frontend is reachable anonymously and reads the deployed contracts. After the
-contracts were deployed and the production build repointed at them, it was fetched on
-2026-09-21 at 11:53:14 UTC with no Vercel session, no cookie and no bypass token. It
-returned HTTP 200 with no redirect and no `Set-Cookie`, and rendered: state source
-`ORACLEGUARD`, oracle state `VALID` at the feed's real price, market session `OPEN`,
-chain head block 68,775,857, both contract addresses, registry record id 1 `ACTIVE`, and
-project owner `0x70C851895247e7ACa99733EA3aaC1FFb247c1423`. The only rows still reading
+The frontend is reachable anonymously and reads the deployed contracts. It is hosted in
+the Metacade Vercel team and was fetched on 2026-09-21 at 13:27:14 UTC with no Vercel
+session, no cookie and no bypass token. It returned HTTP 200 with no redirect and no
+`Set-Cookie`, and rendered: state source `ORACLEGUARD`, oracle state `VALID` at the
+feed's real price, market session `OPEN`, chain head block 68,832,007, both contract
+addresses, registry record id 1 `ACTIVE`, and project owner
+`0x70C851895247e7ACa99733EA3aaC1FFb247c1423`. The only rows still reading
 `NOT CONFIGURED` are the treasury, which this build deliberately leaves unset, and the
 sequencer uptime feed, which Robinhood Chain does not publish.
 
@@ -104,11 +104,10 @@ The closed-session rendering (price shown, session `CLOSED`, state `VALID` with 
 observed live: the market was open at every check made so far. It can first be checked
 live from Saturday 2026-09-26 00:00 UTC.
 
-No project setting was changed to achieve this. The project keeps SSO deployment
-protection at `all_except_custom_domains`, and `arena-project-home.vercel.app` is a
-domain assigned to the project, which that mode exempts. Every other URL for the project,
-including the team-suffixed alias and per-deployment URLs, still redirects to a Vercel
-login, which is why the Frontend URL field names this one URL only.
+The Vercel project keeps SSO deployment protection at `all_except_custom_domains`.
+`arena-project-home.vercel.app` is a domain assigned to the project, which that mode
+exempts; per-deployment URLs redirect to a Vercel login. The Frontend URL field names the
+project domain only.
 
 ---
 
