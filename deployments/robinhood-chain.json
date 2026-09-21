@@ -183,5 +183,25 @@
         "gasUsed": 25772
       }
     ]
+  },
+  "sourceVerification": {
+    "explorer": "https://robinhoodchain.blockscout.com",
+    "route": "Blockscout web form, Solidity standard JSON input, one submission per contract",
+    "result": {
+      "ProjectHomeRegistry": "verified, exact match",
+      "OracleGuard": "verified, exact match"
+    },
+    "verifiedAtExplorerTime": {
+      "ProjectHomeRegistry": "2026-09-21 06:39:23",
+      "OracleGuard": "2026-09-21 07:02:15"
+    },
+    "compiler": "v0.8.28+commit.7893614a",
+    "evmVersion": "cancun",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "confirmedBy": "Checked in a browser on the explorer page for each contract, not from the form response",
+    "constraint": "The explorer API sits behind Cloudflare and refused datacentre traffic, so forge verify-contract could not reach it. The web form for standard JSON input has no constructor-arguments field; the explorer read them from the creation transaction."
   }
 }

@@ -86,7 +86,7 @@ evidenced throughout the repository, and is **not** claimed as a partnership.
 | `ProjectHomeRegistry` | Deployed — `0x7a194166BD8ABb6Aa3bD924532b8c7CA59a05D15` |
 | `OracleGuard` | Deployed — `0x5014BeFb2EE7AA9e29163a75e7989983Df8D2048`, configured against the official Chainlink proxy for Robinhood NVDA / USD |
 | Admin | Every role on both contracts is held by `0x70C851895247e7ACa99733EA3aaC1FFb247c1423`, which is also the registered project owner. The deployer renounced all five roles; the `hasRole` reads proving it are recorded in `deployments/robinhood-chain.json` under `roleHandoff`. |
-| Source verification | PENDING. Submitted through the Blockscout web form with Solidity standard JSON input, compiler v0.8.28+commit.7893614a; not yet confirmed. The explorer API refuses datacentre traffic, so the forge route could not be used. |
+| Source verification | Verified, exact match (not partial), on robinhoodchain.blockscout.com for both contracts. `ProjectHomeRegistry` at 2026-09-21 06:39:23 and `OracleGuard` at 2026-09-21 07:02:15, explorer time. Both: compiler v0.8.28+commit.7893614a, EVM cancun, optimizer enabled, 200 runs; constructor argument `admin` = `0x451b561485069d5983118aD2bA3d80b88B0A5100`, read by the explorer from the creation transaction. Source, ABI and read/write tabs are public. |
 | Public frontend URL | Live and publicly reachable — https://arena-project-home.vercel.app/project/metacade |
 
 The frontend is reachable anonymously and reads the deployed contracts. It is hosted in
