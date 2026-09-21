@@ -100,7 +100,7 @@ Requires Foundry and pnpm.
 
 ```bash
 forge build
-forge test                 # 60 unit tests, no network needed; 4 fork tests skip
+forge test                 # 65 unit tests, no network needed; 4 fork tests skip
 
 # live fork proof against Robinhood Chain mainnet
 ROBINHOOD_RPC_URL=https://rpc.mainnet.chain.robinhood.com forge test --match-contract OracleGuardForkTest -vv
@@ -121,11 +121,37 @@ the deployed contracts instead and labels the source `ORACLEGUARD`.
 | `ROBINHOOD_RPC_URL` | JSON-RPC endpoint. Defaults to the public endpoint, which is rate-limited. |
 | `NEXT_PUBLIC_REGISTRY_ADDRESS` | Deployed `ProjectHomeRegistry`. |
 | `NEXT_PUBLIC_ORACLE_GUARD_ADDRESS` | Deployed `OracleGuard`. |
-| `DEPLOY_ADMIN` | Admin address for the deploy script. |
+| `ROBINHOOD_CHAIN_ID` | Network the frontend reads: `4663` (default) or `46630` for the testnet rehearsal. Any other value fails loudly. |
+| `ROBINHOOD_TESTNET_RPC_URL` | Testnet JSON-RPC endpoint. Defaults to the public testnet endpoint. |
+| `DEPLOY_ADMIN` | Admin address for the deploy script. Must be the broadcasting account. |
 | `PROJECT_OWNER` | Project owner recorded in the registry. Defaults to `DEPLOY_ADMIN`. |
+| `MOCK_NVDA_ANSWER` | Testnet only. Seed answer for the rehearsal mock feed, 8 decimals. |
 
 No secret belongs in any `NEXT_PUBLIC_` variable. The deployment signer is never read
 by the frontend and never leaves the local environment.
+
+### Deploying
+
+`contracts/script/Deploy.s.sol` selects its configuration by `block.chainid`:
+
+| Chain | What it deploys |
+|---|---|
+| 4663, mainnet | `ProjectHomeRegistry` and `OracleGuard`, the guard pointed at the official Chainlink proxy and Robinhood Stock Token. Nothing else. |
+| 46630, testnet | A `MockAggregator` first, as rehearsal scaffolding, then the same two contracts with the guard pointed at the mock. Chainlink publishes no Robinhood feed on testnet. |
+| anything else | Reverts before sending a transaction. |
+
+```bash
+# simulate; no transaction is sent
+DEPLOY_ADMIN=<deployer> forge script contracts/script/Deploy.s.sol:Deploy \
+  --rpc-url <rpc> --sender <deployer>
+
+# after a real --broadcast, record addresses and transaction hashes
+node scripts/record-deployment.mjs 46630   # writes deployments/robinhood-chain-testnet.json
+node scripts/record-deployment.mjs 4663    # writes deployments/robinhood-chain.json
+```
+
+The recorder reads forge's broadcast output and receipts, never hand-typed values, and
+its chain id selects the output file. A testnet run has no path to the mainnet record.
 
 ---
 

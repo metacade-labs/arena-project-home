@@ -62,6 +62,18 @@ export default async function ProjectHomePage() {
         </ul>
       </header>
 
+      {chainConfig.isRehearsal ? (
+        <div className="notice">
+          <h2>Testnet rehearsal</h2>
+          <ul>
+            <li>
+              This render reads <strong>{chainConfig.name}</strong>. The guard here reads a mock
+              aggregator deployed for the rehearsal, not a Chainlink feed. No price below is real.
+            </li>
+          </ul>
+        </div>
+      ) : null}
+
       <div className="notice">
         <h2>Read this before anything else on the page</h2>
         <ul>
@@ -249,15 +261,23 @@ export default async function ProjectHomePage() {
               <NotConfigured reason="deployment gated on gas approval" />
             )}
           </Row>
-          <Row label="Chainlink feed proxy">
-            <AddressLink address={oracleConfig.feedProxy} />
-          </Row>
-          <Row label="Chainlink aggregator">
-            <AddressLink address={oracleConfig.aggregator} />
-          </Row>
-          <Row label="Stock Token ERC-20">
-            <AddressLink address={oracleConfig.stockToken} />
-          </Row>
+          {chainConfig.isRehearsal ? (
+            <Row label="Chainlink feed">
+              <NotConfigured reason="published on mainnet only; the rehearsal guard reads a mock" />
+            </Row>
+          ) : (
+            <>
+              <Row label="Chainlink feed proxy">
+                <AddressLink address={oracleConfig.feedProxy} />
+              </Row>
+              <Row label="Chainlink aggregator">
+                <AddressLink address={oracleConfig.aggregator} />
+              </Row>
+              <Row label="Stock Token ERC-20">
+                <AddressLink address={oracleConfig.stockToken} />
+              </Row>
+            </>
+          )}
           <Row label="Explorer">
             <a href={chainConfig.explorer} rel="noreferrer noopener" target="_blank">
               {chainConfig.explorer.replace("https://", "")}
@@ -288,20 +308,22 @@ export default async function ProjectHomePage() {
               LinkedIn
             </a>
           </li>
-          <li>
-            <a
-              href={explorerAddressUrl(oracleConfig.feedProxy)}
-              rel="noreferrer noopener"
-              target="_blank"
-            >
-              Feed on Blockscout
-            </a>
-          </li>
+          {chainConfig.isRehearsal ? null : (
+            <li>
+              <a
+                href={explorerAddressUrl(oracleConfig.feedProxy)}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                Feed on Blockscout
+              </a>
+            </li>
+          )}
         </ul>
         <p>
           Read-only reference implementation. No wallet connection, no authentication, no private
           API. The price, its timestamp, the oracle state and the chain head are live reads of
-          Robinhood Chain mainnet. The heartbeat, deviation threshold, freshness policy, market
+          {chainConfig.isRehearsal ? chainConfig.name : "Robinhood Chain mainnet"}. The heartbeat, deviation threshold, freshness policy, market
           hours and progression rows are configuration, shown so the live values can be judged
           against them.
         </p>
