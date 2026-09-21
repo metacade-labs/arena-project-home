@@ -153,6 +153,28 @@ node scripts/record-deployment.mjs 4663    # writes deployments/robinhood-chain.
 The recorder reads forge's broadcast output and receipts, never hand-typed values, and
 its chain id selects the output file. A testnet run has no path to the mainnet record.
 
+### Role handoff
+
+The deployer is a temporary admin. Straight after the deploy, in the same session:
+
+```bash
+# PROJECT_OWNER must be the new admin at deploy time: the registry cannot change a
+# project owner after registration, and the handoff script refuses to run otherwise.
+DEPLOY_ADMIN=<deployer> PROJECT_OWNER=<new admin> forge script contracts/script/Deploy.s.sol:Deploy ...
+
+REGISTRY_ADDRESS=<registry> ORACLE_GUARD_ADDRESS=<guard> NEW_ADMIN=<new admin> \
+  forge script contracts/script/HandoffRoles.s.sol:HandoffRoles ...
+
+node scripts/record-roles.mjs <chainId> <new admin>
+```
+
+`HandoffRoles` sends ten transactions: it grants `DEFAULT_ADMIN_ROLE`, `REGISTRAR_ROLE`
+and `CURATOR_ROLE` on the registry and `DEFAULT_ADMIN_ROLE` and `ASSET_MANAGER_ROLE` on
+the guard to the new admin, then renounces all five from the deployer, admin role last.
+It checks the end state before exiting. `record-roles.mjs` then reads all ten `hasRole`
+answers at one block and writes them to the deployment record only if the deployer holds
+none of the roles and the new admin holds all five.
+
 ### Source verification
 
 Proven on the testnet rehearsal on 2026-09-21: all three contracts reached
