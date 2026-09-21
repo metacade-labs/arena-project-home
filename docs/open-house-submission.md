@@ -35,10 +35,6 @@ same change.
 
 *(54 characters)*
 
-Use this URL and no other. The team-suffixed alias
-`arena-project-home-bloated-toad.vercel.app` stays behind Vercel SSO and shows a login
-page to a judge.
-
 ## Core contracts
 
 > ProjectHomeRegistry records a project onchain: slug, owner, metadata URI, home chain, treasury reference, active flag. OracleGuard returns an explicit validity state for one official Chainlink feed instead of a bare price. Neither is payable; neither takes custody.
