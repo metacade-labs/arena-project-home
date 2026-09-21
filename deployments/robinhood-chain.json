@@ -4,7 +4,7 @@
   "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
   "explorer": "https://robinhoodchain.blockscout.com",
   "status": "PENDING_DEPLOYMENT",
-  "note": "Deployment is gated on explicit gas approval. Addresses are written here by contracts/script/Deploy.s.sol once that approval is given.",
+  "note": "Deployment is gated on explicit gas approval. Addresses and transaction hashes are written here by scripts/record-deployment.mjs from the broadcast receipts once that approval is given.",
   "contracts": {
     "ProjectHomeRegistry": null,
     "OracleGuard": null

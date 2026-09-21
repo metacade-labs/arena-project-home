@@ -153,6 +153,31 @@ node scripts/record-deployment.mjs 4663    # writes deployments/robinhood-chain.
 The recorder reads forge's broadcast output and receipts, never hand-typed values, and
 its chain id selects the output file. A testnet run has no path to the mainnet record.
 
+### Source verification
+
+Proven on the testnet rehearsal on 2026-09-21: all three contracts reached
+`is_fully_verified: true` on `explorer.testnet.chain.robinhood.com` (Blockscout v10.2.6)
+with this command, once per contract. Both production contracts take a single
+`constructor(address admin)`.
+
+```bash
+forge verify-contract <address> contracts/src/OracleGuard.sol:OracleGuard \
+  --chain 46630 \
+  --verifier blockscout \
+  --verifier-url https://explorer.testnet.chain.robinhood.com/api/ \
+  --constructor-args $(cast abi-encode "constructor(address)" <admin>) \
+  --compiler-version 0.8.28 \
+  --watch
+```
+
+For mainnet, substitute `--chain 4663` and
+`--verifier-url https://robinhoodchain.blockscout.com/api/`. That explorer's API sits
+behind Cloudflare and has refused datacentre traffic, so the second route is the
+Blockscout web form: generate the input with
+`forge verify-contract <address> <path>:<name> --show-standard-json-input > <name>.json`
+and upload it under "Verify & Publish" as Solidity standard JSON input, compiler
+v0.8.28+commit.7893614a.
+
 ---
 
 ## Documentation

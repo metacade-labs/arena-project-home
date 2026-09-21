@@ -1,0 +1,67 @@
+{
+  "network": "Robinhood Chain Testnet",
+  "chainId": 46630,
+  "rpcUrl": "https://rpc.testnet.chain.robinhood.com",
+  "explorer": "https://explorer.testnet.chain.robinhood.com",
+  "status": "DEPLOYED",
+  "note": "Rehearsal only. The guard reads a MockAggregator deployed by the same script, because Chainlink publishes no Robinhood feed on testnet. Nothing here is a price source, and no address in this file belongs in the submission pack.",
+  "deployer": "0x28d986cae86fb01467ee3e4523b96bf825a5b32f",
+  "contracts": {
+    "MockAggregator": "0xf11de8f8756c5e1bddb1ee4bf1ce93cddeee43a3",
+    "ProjectHomeRegistry": "0x470a9e91fb181f4c3fb9dbe614b8bb54b9f0417c",
+    "OracleGuard": "0x4280e37ad574baa3e23038b96e7970006d5dbfca"
+  },
+  "deploymentTxHashes": {
+    "MockAggregator": "0x4be0bb27c64937f899e921bb2f1d07266c24212ac74cb6236df11e285deda8ea",
+    "ProjectHomeRegistry": "0xe31c15888243170fd3fee607f9903a71241b9ad4c59e19d732402b5d9007313c",
+    "OracleGuard": "0x264db46d42a26247b9330acff73460a21446efdca882d3e2b59da170db29548f"
+  },
+  "transactions": [
+    {
+      "type": "CREATE",
+      "contract": "MockAggregator",
+      "function": null,
+      "contractAddress": "0xf11de8f8756c5e1bddb1ee4bf1ce93cddeee43a3",
+      "txHash": "0x4be0bb27c64937f899e921bb2f1d07266c24212ac74cb6236df11e285deda8ea",
+      "blockNumber": 122343986,
+      "gasUsed": 449671
+    },
+    {
+      "type": "CREATE",
+      "contract": "ProjectHomeRegistry",
+      "function": null,
+      "contractAddress": "0x470a9e91fb181f4c3fb9dbe614b8bb54b9f0417c",
+      "txHash": "0xe31c15888243170fd3fee607f9903a71241b9ad4c59e19d732402b5d9007313c",
+      "blockNumber": 122344005,
+      "gasUsed": 1565367
+    },
+    {
+      "type": "CREATE",
+      "contract": "OracleGuard",
+      "function": null,
+      "contractAddress": "0x4280e37ad574baa3e23038b96e7970006d5dbfca",
+      "txHash": "0x264db46d42a26247b9330acff73460a21446efdca882d3e2b59da170db29548f",
+      "blockNumber": 122344026,
+      "gasUsed": 1766881
+    },
+    {
+      "type": "CALL",
+      "contract": "OracleGuard",
+      "function": "configureAsset(string,address,address,uint32,uint32,bool)",
+      "contractAddress": null,
+      "txHash": "0xa900e20464d592fad3ff034a6b65634a1b8dfb5c9acb09d2487bcdfe7e728789",
+      "blockNumber": 122344046,
+      "gasUsed": 151201
+    },
+    {
+      "type": "CALL",
+      "contract": "ProjectHomeRegistry",
+      "function": "registerProject(string,string,address,string,uint256)",
+      "contractAddress": null,
+      "txHash": "0xdcc32f43c50519ada4ea68951cb69707ad89619ee6358476358b26280c213c9e",
+      "blockNumber": 122344060,
+      "gasUsed": 342127
+    }
+  ],
+  "recordedFrom": "broadcast/Deploy.s.sol/46630/run-latest.json"
+}
