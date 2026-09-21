@@ -12,14 +12,42 @@ const asAddress = (value: string | undefined): Address | null => {
   return /^0x[a-fA-F0-9]{40}$/.test(trimmed) ? (trimmed as Address) : null;
 };
 
-/** Robinhood Chain Mainnet. Source: docs.robinhood.com/chain/connecting */
-export const chainConfig = {
-  id: 4663,
-  name: "Robinhood Chain",
-  rpcUrl: process.env.ROBINHOOD_RPC_URL ?? "https://rpc.mainnet.chain.robinhood.com",
-  explorer: "https://robinhoodchain.blockscout.com",
-  nativeCurrency: {name: "Ether", symbol: "ETH", decimals: 18}
+/**
+ * Networks. Source: docs.robinhood.com/chain/connecting
+ *
+ * Mainnet is the default and the only network the public deployment uses. The testnet
+ * entry exists so the deploy rehearsal can prove the page's read path against real
+ * contracts; there the guard reads a mock feed, so the page marks itself as a rehearsal.
+ */
+const networks = {
+  4663: {
+    id: 4663,
+    name: "Robinhood Chain",
+    rpcUrl: process.env.ROBINHOOD_RPC_URL ?? "https://rpc.mainnet.chain.robinhood.com",
+    explorer: "https://robinhoodchain.blockscout.com",
+    nativeCurrency: {name: "Ether", symbol: "ETH", decimals: 18},
+    isRehearsal: false
+  },
+  46630: {
+    id: 46630,
+    name: "Robinhood Chain Testnet",
+    rpcUrl: process.env.ROBINHOOD_TESTNET_RPC_URL ?? "https://rpc.testnet.chain.robinhood.com",
+    explorer: "https://explorer.testnet.chain.robinhood.com",
+    nativeCurrency: {name: "Ether", symbol: "ETH", decimals: 18},
+    isRehearsal: true
+  }
 } as const;
+
+const selectNetwork = (value: string | undefined) => {
+  const id = value?.trim() || "4663";
+  if (id !== "4663" && id !== "46630") {
+    // An unknown chain is a misconfiguration, not a reason to quietly show mainnet.
+    throw new Error(`ROBINHOOD_CHAIN_ID must be 4663 or 46630, got "${id}"`);
+  }
+  return networks[Number(id) as keyof typeof networks];
+};
+
+export const chainConfig = selectNetwork(process.env.ROBINHOOD_CHAIN_ID);
 
 /**
  * Deployed reference contracts. Null until the deployment gate is cleared, which the

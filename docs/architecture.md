@@ -19,9 +19,15 @@ It is a reference implementation. The wider Metacade Arena is not live on Robinh
 | Explorer | `https://robinhoodchain.blockscout.com` | docs.robinhood.com/chain/connecting |
 | Chain type | Arbitrum Layer-2 on Ethereum | docs.robinhood.com/chain |
 
-A Robinhood Chain testnet exists (chain ID 46630). It is not used here: Chainlink
-publishes no price feeds on any Robinhood test network, so the tokenized-equity feed
-that this reference is built around cannot be read there.
+A Robinhood Chain testnet exists (chain ID 46630, `https://rpc.testnet.chain.robinhood.com`,
+explorer `https://explorer.testnet.chain.robinhood.com`). It is used for one job: a
+deployment rehearsal. Chainlink publishes no price feeds on any Robinhood test network,
+and the mainnet proxy address has no code there, so the tokenized-equity feed this
+reference is built around cannot be read on testnet. The deploy script therefore deploys
+a `MockAggregator` on 46630 and points the guard at it. That proves the deploy script,
+the access-control wiring, explorer verification and the frontend read path. It proves
+nothing about the live feed; that proof is the mainnet fork test. Testnet addresses are
+recorded in `deployments/robinhood-chain-testnet.json` and never in the submission pack.
 
 The public RPC is rate-limited and documented as unsuitable for production. It is
 adequate for reads at this scale and is what the fork test and frontend use by default.

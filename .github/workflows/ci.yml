@@ -93,8 +93,14 @@ jobs:
           if grep -rEn '\b(0x)?[a-fA-F0-9]{64}\b' \
               --include='*.ts' --include='*.tsx' --include='*.sol' \
               --include='*.json' --include='*.yml' --include='*.md' \
-              --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=out . ; then
+              --exclude-dir=node_modules --exclude-dir=lib --exclude-dir=out \
+              --exclude-dir=deployments . ; then
             echo "A 64-hex string is present. Review it before merging."
             exit 1
           fi
           echo "No 64-hex key material found."
+
+      # Deployment records carry transaction hashes, which are 64-hex by nature, so they
+      # are exempt from the blanket check above and held to a stricter rule instead.
+      - name: Assert deployment records hold 64-hex values only as transaction hashes
+        run: python3 scripts/check-deployment-records.py
