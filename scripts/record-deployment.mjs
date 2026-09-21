@@ -8,6 +8,11 @@
 //
 // The chain id selects the output file and nothing else can. A testnet run writes
 // deployments/robinhood-chain-testnet.json and has no path to the mainnet record.
+//
+// Every receipt is re-fetched from the network's public RPC before anything is written.
+// A local fork (anvil) reports the same chain id and forge files its runs under the same
+// path, so the broadcast file alone cannot prove a transaction reached the real chain.
+import {execFileSync} from "node:child_process";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
 
 const TARGETS = {
@@ -53,6 +58,30 @@ if (Number(run.chain) !== chainId) {
 if (!Array.isArray(run.receipts) || run.receipts.length !== run.transactions.length) {
   console.error("Receipts are missing or incomplete. Refusing to record an unconfirmed run.");
   process.exit(1);
+}
+
+const cast = (...args) =>
+  execFileSync("cast", [...args, "--rpc-url", target.rpcUrl], {encoding: "utf8"}).trim();
+if (Number(cast("chain-id")) !== chainId) {
+  console.error(`${target.rpcUrl} does not report chain ${chainId}.`);
+  process.exit(1);
+}
+for (const r of run.receipts) {
+  let live;
+  try {
+    live = JSON.parse(cast("receipt", r.transactionHash, "--async", "--json"));
+  } catch {
+    console.error(`${r.transactionHash} is not on ${target.network}. Refusing to record a local or fork run.`);
+    process.exit(1);
+  }
+  const same =
+    live.status === r.status &&
+    BigInt(live.blockNumber) === BigInt(r.blockNumber) &&
+    (live.contractAddress ?? null)?.toLowerCase() === (r.contractAddress ?? null)?.toLowerCase();
+  if (!same) {
+    console.error(`${r.transactionHash} on ${target.network} does not match the broadcast file.`);
+    process.exit(1);
+  }
 }
 
 const receiptByHash = new Map(run.receipts.map((r) => [r.transactionHash.toLowerCase(), r]));
