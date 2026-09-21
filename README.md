@@ -45,10 +45,17 @@ assert exactly that pair, using the same price age and expecting opposite states
 | `ProjectHomeRegistry` | Public record of a project: slug, owner, metadata URI, home chain, treasury reference, active flag. Holds no value. |
 | `OracleGuard` | Returns an explicit `OracleState` for one official Chainlink feed. Holds no value, converts nothing, has no fallback price source. |
 
-Exactly two contracts will be deployed and no more. Neither is payable, and tests assert
-that a value transfer to either address fails. Nothing is deployed yet: deployment is
-gated on explicit gas approval, and `deployments/robinhood-chain.json` records the
-addresses once it is given.
+Exactly two contracts are deployed and no more. Neither is payable, and tests assert
+that a value transfer to either address fails. Both are live on Robinhood Chain Mainnet:
+
+| Contract | Address |
+|---|---|
+| `ProjectHomeRegistry` | `0x7a194166BD8ABb6Aa3bD924532b8c7CA59a05D15` |
+| `OracleGuard` | `0x5014BeFb2EE7AA9e29163a75e7989983Df8D2048` |
+
+Every role on both is held by `0x70C851895247e7ACa99733EA3aaC1FFb247c1423`; the deployer
+renounced all of them. `deployments/robinhood-chain.json` records the addresses, every
+transaction hash and the `hasRole` reads, all taken from receipts and chain reads.
 
 ### Oracle states
 

@@ -36,8 +36,13 @@ adequate for reads at this scale and is what the fork test and frontend use by d
 
 ## Contracts
 
-Exactly two contracts will be deployed. Nothing else takes an address. Nothing is
-deployed yet; the gate is explicit gas approval.
+Exactly two contracts are deployed. Nothing else takes an address. On Robinhood Chain
+Mainnet they are `ProjectHomeRegistry` at `0x7a194166BD8ABb6Aa3bD924532b8c7CA59a05D15`
+and `OracleGuard` at `0x5014BeFb2EE7AA9e29163a75e7989983Df8D2048`. The deployer was a
+temporary admin: straight after the deploy it granted every role to
+`0x70C851895247e7ACa99733EA3aaC1FFb247c1423` and renounced its own, admin role last
+(`contracts/script/HandoffRoles.s.sol`). The registered project owner was set to the same
+address at registration, because the registry cannot change an owner afterwards.
 
 ### ProjectHomeRegistry
 
